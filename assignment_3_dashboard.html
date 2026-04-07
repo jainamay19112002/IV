@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Assignment 3</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #b5d1dd;
+      color: #695e6a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      margin: 0;
+    }
+
+   
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 1040px; /* Matches the approximate width of the visualization block */
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-weight: 700;
+      color: #7a5f7c;
+      margin: 0;
+    }
+
+    .student-info {
+      text-align: right;
+      color: #7a5f7c;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    #vis-container {
+      background: #83a8abc1;
+      padding: 40px;
+      border-radius: 20px;
+      border: 2px solid #a7c1cb;
+      box-shadow: 0 10px 40px rgba(220, 140, 170, 0.25);
+    }
+    
+    .vega-bindings {
+      margin-bottom: 20px !important;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+    .vega-bind {
+      color: #7a5f7c !important;
+      font-weight: 600 !important;
+    }
+    .vega-bind select {
+      font-family: 'Quicksand', sans-serif;
+      border: 1px solid #f3c3ce;
+      border-radius: 4px;
+      padding: 4px 8px;
+      color: #4f3f50;
+      outline: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  
+  <div class="header-container">
+    <h1>Assignment - 3 Information Visualization</h1>
+    <div class="student-info">
+      Name: Amay Jain<br>
+      Roll No: 2025EET2478
+    </div>
+  </div>
+
+  <div id="vis-container">
+    <div id="vis"></div>
+  </div>
+
+  <script>
+    const spec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+
+      "data": {
+        "url": "https://raw.githubusercontent.com/jainamay19112002/IV/refs/heads/main/HW_III.csv",
+        "format": { "type": "csv" }
+      },
+
+      "config": {
+        "font": "'Quicksand', sans-serif",
+        "title": { "fontSize": 16, "fontWeight": 600, "color": "#c687ad", "anchor": "start", "offset": 15 },
+        "axis": {
+          "labelColor": "#7c8591",
+          "titleColor": "#7a5f7c",
+          "titleFontWeight": 600,
+          "gridColor": "#f6dce3",
+          "domainColor": "transparent",
+          "tickColor": "transparent"
+        },
+        "view": { "stroke": "transparent" },
+        "legend": { "titleColor": "#7a5f7c", "labelColor": "#6b7280" }
+      },
+
+      "params": [
+        {
+          "name": "RegionSel",
+          "value": "All",
+          "bind": {
+            "input": "select",
+            "options": ["All", "East", "Central", "West"],
+            "labels": ["All Regions", "East", "Central", "West"],
+            "name": "Region Filter: "
+          }
+        },
+        {
+          "name": "ItemSel",
+          "value": "All",
+          "bind": {
+            "input": "select",
+            "options": ["All", "Pencil", "Binder", "Pen", "Pen Set", "Desk"],
+            "labels": ["All Items", "Pencil", "Binder", "Pen", "Pen Set", "Desk"],
+            "name": "Item Filter: "
+          }
+        }
+      ],
+
+      "spacing": 40,
+      "vconcat": [
+        {
+          "spacing": 40,
+          "hconcat": [
+            {
+              // Chart 1
+              
+  // Chart 1
+  "title": "Total Revenue by Rep (Donut Chart)",
+  "transform": [
+    { "filter": "RegionSel == 'All' || datum.Region == RegionSel" },
+    { "filter": "ItemSel == 'All' || datum.Item == ItemSel" }
+  ],
+
+  "params": [
+    {
+      "name": "repSelect",
+      "select": {
+        "type": "point",
+        "fields": ["Rep"]
+      }
+    }
+  ],
+
+  "mark": {
+    "type": "arc",
+    "innerRadius": 55,
+    "padAngle": 0.05,
+    "cornerRadius": 6
+  },
+
+  "encoding": {
+    "theta": {
+      "field": "Total",
+      "type": "quantitative",
+      "aggregate": "sum"
+    },
+
+    "color": {
+      "field": "Rep",
+      "type": "nominal",
+      "scale": { "scheme": "set2" }
+    },
+
+    "opacity": {
+      "condition": { "param": "repSelect", "value": 1 },
+      "value": 0.3
+    },
+
+    "tooltip": [
+      { "field": "Rep", "type": "nominal" },
+      { "field": "Total", "type": "quantitative", "aggregate": "sum", "format": "$,.2f" }
+    ]
+  },
+
+  "width": 500,
+  "height": 280
+}
+             ,
+            {
+              // Chart 2
+
+              "title": "Revenue Flow Over Time (Stream Graph)",
+              "transform": [
+                { "filter": "RegionSel == 'All' || datum.Region == RegionSel" },
+                { "filter": "ItemSel == 'All' || datum.Item == ItemSel" }
+              ],
+              "params": [
+                {
+                  "name": "hoverArea",
+                  "select": { "type": "point", "fields": ["Item"], "on": "mouseover", "clear": "mouseout" }
+                }
+              ],
+              "mark": { "type": "area", "line": { "color": "white", "strokeWidth": 1 }, "interpolate": "monotone", "cursor": "pointer" },
+              "encoding": {
+                "x": { "field": "OrderDate", "timeUnit": "yearmonth", "type": "temporal", "axis": { "format": "%b %Y", "title": "Date" } },
+                "y": { "aggregate": "sum", "field": "Total", "type": "quantitative", "stack": "center", "axis": null },
+                "color": {
+                  "field": "Item",
+                  "type": "nominal",
+                  "scale": { "scheme": "set2" }
+                },
+                "opacity": {
+                  "condition": { "param": "hoverArea", "value": 0.95 },
+                  "value": 0.3
+                },
+                "tooltip": [
+                  { "field": "Item", "type": "nominal", "title": "Category" },
+                  { "aggregate": "sum", "field": "Total", "type": "quantitative", "title": "Total Revenue", "format": "$,.2f" }
+                ]
+              },
+              "width": 400, "height": 280
+            }
+          ]
+        },
+
+        //Chart 3
+        {
+          "title": "Unit Distribution per Item Category (Trellis Histogram with Mean (Red dotted line))",
+          "transform": [
+                { "filter": "RegionSel == 'All' || datum.Region == RegionSel" },
+                { "filter": "ItemSel == 'All' || datum.Item == ItemSel" }
+              ],
+          "facet": {
+            "field": "Item",
+            "type": "nominal",
+            "columns": 3,
+            "header": { "labelFontSize": 14, "labelFontWeight": 600, "title": null, "labelColor": "#7a5f7c" }
+          },
+          "spec": {
+            "layer": [
+              {
+                "params": [
+                  {
+                    "name": "hoverBar",
+                    "select": { "type": "point", "on": "mouseover", "clear": "mouseout" }
+                  }
+                ],
+                "mark": { "type": "bar", "cornerRadiusEnd": 4, "color": "#62cbd5", "cursor": "pointer" },
+                "encoding": {
+                  "x": { "field": "Units", "bin": true, "type": "quantitative", "axis": { "title": "Units Sold" } },
+                  "y": { "aggregate": "count", "type": "quantitative", "axis": { "title": "Frequency" } },
+                  "opacity": {
+                    "condition": { "param": "hoverBar", "value": 1 },
+                    "value": 0.5
+                  },
+                  "tooltip": [
+                    { "field": "Units", "bin": true, "title": "Units Range" },
+                    { "aggregate": "count", "title": "Frequency" }
+                  ]
+                }
+              },
+              {
+                "mark": { "type": "rule", "color": "#f28b82", "size": 3, "strokeDash": [4, 4] },
+                "encoding": {
+                  "x": { "aggregate": "mean", "field": "Units", "type": "quantitative" },
+                  "tooltip": [
+                    { "aggregate": "mean", "field": "Units", "type": "quantitative", "title": "Average Units", "format": ".1f" }
+                  ]
+                }
+              }
+            ],
+            "width": 200, "height": 150
+          }
+        },
+        {
+          "spacing": 60,
+          "hconcat": [
+            {
+              // Chart 4
+
+              "title": "Unit Cost vs Total Revenue (Bubble Chart)",
+              "transform": [
+                { "filter": "RegionSel == 'All' || datum.Region == RegionSel" },
+                { "filter": "ItemSel == 'All' || datum.Item == ItemSel" }
+              ],
+              "params": [
+                {
+                  "name": "repSel",
+                  "select": { "type": "point", "fields": ["Rep"] }
+                }
+              ],
+              "mark": { "type": "point", "filled": true },
+              "encoding": {
+                "x": { "field": "Unit Cost", "type": "quantitative", "title": "Unit Cost ($)", "scale": { "zero": false } },
+                "y": { "field": "Total", "type": "quantitative", "title": "Total Revenue ($)" },
+                "size": {
+                  "field": "Units", 
+                  "type": "quantitative", 
+                  "title": "Units Sold",
+                  "scale": { "range": [50, 800] }, 
+                  "legend": { "orient": "right", "rowPadding": 15, "symbolType": "circle" }
+                },
+                "color": {
+                  "field": "Item", "type": "nominal",
+                  "scale": { "scheme": "set2" }, "legend": { "orient": "right" }
+                },
+                "opacity": {
+                  "condition": { "param": "repSel", "value": 0.92 },
+                  "value": 0.1
+                },
+                "tooltip": [
+                  { "field": "Rep", "type": "nominal", "title": "Rep" },
+                  { "field": "Item", "type": "nominal", "title": "Item" },
+                  { "field": "Region", "type": "nominal", "title": "Region" },
+                  { "field": "Unit Cost", "type": "quantitative", "title": "Unit Cost", "format": "$,.2f" },
+                  { "field": "Units", "type": "quantitative", "title": "Units Sold" },
+                  { "field": "Total", "type": "quantitative", "title": "Revenue", "format": "$,.0f" }
+                ]
+              },
+              "width": 400, "height": 280
+            },
+            {
+              // Chart 5
+              "title": "Monthly Revenue by Item (Line Chart)",
+              "transform": [
+                { "filter": "RegionSel == 'All' || datum.Region == RegionSel" },
+                { "filter": "ItemSel == 'All' || datum.Item == ItemSel" }
+              ],
+              "params": [
+                {
+                  "name": "hover",
+                  "select": { "type": "point", "on": "mouseover", "clear": "mouseout" }
+                }
+              ],
+              "mark": { "type": "line", "point": true, "strokeWidth": 2 },
+              "encoding": {
+                "x": { "timeUnit": "yearmonth", "field": "OrderDate", "type": "temporal", "axis": {"format": "%b %Y", "title": "Month"} },
+                "y": { "aggregate": "sum", "field": "Total", "type": "quantitative", "title": "Total Revenue ($)" },
+                "color": { 
+                  "field": "Item", 
+                  "type": "nominal", 
+                  "scale": { "scheme": "set2" },
+                  "legend": null /* Removing this legend stops Vega-Lite from pushing it to the far right */
+                },
+                "opacity": {
+                  "condition": { "param": "hover", "value": 1 },
+                  "value": 0.15
+                },
+                "tooltip": [
+                  { "field": "Item", "type": "nominal" },
+                  { "aggregate": "sum", "field": "Total", "type": "quantitative", "title": "Revenue", "format": "$,.0f" }
+                ]
+              },
+              "width": 400, "height": 280
+            }
+          ]
+        }
+      ],
+      "resolve": { 
+        "scale": { "color": "independent", "size": "independent" },
+        "legend": { "color": "independent", "size": "independent" } /* This strictly binds legends to their parent charts */
+      }
+    };
+
+    vegaEmbed('#vis', spec, { actions: false }).catch(console.error);
+  </script>
+</body>
+
+</html>
