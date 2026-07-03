@@ -4,8 +4,6 @@ This repository contains the project submission for the Information Visualizatio
 **Project Overview**
 Course: Information Visualization
 
-**Assignment: 3**
-
 Objective: To design and implement an effective visualization for a specific dataset/problem statement to improve clarity and data interpretation.
 
 **Technologies Used**
